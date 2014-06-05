@@ -14,3 +14,7 @@ dev_vars.sls
 !dev_vars.sls.encrypted
 prod_vars.sls
 !prod_vars.sls.encrypted
+
+
+inform.sqlitedb
+inform/flask.conf.py
