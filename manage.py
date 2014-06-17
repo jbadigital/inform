@@ -27,8 +27,9 @@ def load(plugin_name):
         output = {
             plugin_name: app.config['plugins'][plugin_name]['plugin'].run(force=True)
         }
-
-    print json.dumps(output, indent=2)
+        print json.dumps(output, indent=2)
+    else:
+        print 'Plugin not loaded'
 
 
 @manager.command
