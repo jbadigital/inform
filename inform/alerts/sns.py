@@ -3,10 +3,10 @@ import boto.sns
 
 class SNSAlert:
     @staticmethod
-    def prepare(access_id, secret_key, topic):
+    def prepare(region, access_id, secret_key, topic):
         alert = SNSAlert()
         alert.conn = boto.sns.connect_to_region(
-            "ap-southeast-1",
+            region,
             aws_access_key_id=access_id,
             aws_secret_access_key=secret_key,
         )
