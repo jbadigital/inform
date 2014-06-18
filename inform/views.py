@@ -36,12 +36,7 @@ def poll():
 
 
 def _make_json_response(content, html=False):
-    if app.debug:
-        response = make_response(json.dumps(content, indent=2))
-    else:
-        response = make_response(json.dumps(content))
-
-    if html == False:
+    response = make_response(json.dumps(content, indent=2))
+    if html is False:
         response.headers['Content-Type'] = 'application/json'
-
     return response
