@@ -31,6 +31,13 @@ class MonitorPlugin(InformBasePlugin):
             'monitoring.client_status',
             expr_form='compound'
         )
+        if not results:
+            alert = SNSAlert.prepare(ec2_region, self.access_id, self.secret_key, self.sns_topic)
+            alert.send(
+                'No data retrieved via Salt in {}'.format(ec2_region),
+                'Boomerang Notifications Failure'
+            )
+            return {}
 
         for client_ref, data in results[results.keys()[0]].items():
             # raise an alert if 2 hour sends is zero
