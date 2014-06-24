@@ -29,7 +29,8 @@ class MonitorPlugin(InformBasePlugin):
         results = client.cmd(
             'G@ec2_region:{} and G@role:rabbit'.format(ec2_region),
             'monitoring.client_status',
-            expr_form='compound'
+            expr_form='compound',
+            timeout=20
         )
         if not results:
             alert = SNSAlert.prepare(ec2_region, self.access_id, self.secret_key, self.sns_topic)
@@ -40,13 +41,15 @@ class MonitorPlugin(InformBasePlugin):
             return {}
 
         for client_ref, data in results[results.keys()[0]].items():
-            # raise an alert if 2 hour sends is zero
-            if data['sends_last_2hrs'] == 0:
-                alert = SNSAlert.prepare(ec2_region, self.access_id, self.secret_key, self.sns_topic)
-                alert.send(
-                    'Boomerang sends are zero for the last 2 hours for {0}'.format(client_ref),
-                    'Boomerang Send Warning for {0}'.format(client_ref)
-                )
+            if client_ref in ('www_optus_com_au', 'virginmobile_com_au'):
+                # raise an alert if 2 hour sends is zero
+                if data['sends_last_2hrs'] == 0:
+                    self.alert(client_ref, 2)
+
+            elif client_ref in ('goodlifehealthclubs_com_au', 'melbourneit_com_au'):
+                # raise an alert if 4 hour sends is zero
+                if data['sends_last_4hrs'] == 0:
+                    self.alert(client_ref, 4)
 
             # store raw metrics
             output[client_ref] = {'timestamp': datetime.datetime.now().isoformat()}
@@ -54,3 +57,11 @@ class MonitorPlugin(InformBasePlugin):
                 output[client_ref][key] = value
 
         return output
+
+    def alert(self, client_ref, hours):
+        alert = SNSAlert.prepare(ec2_region, self.access_id, self.secret_key, self.sns_topic)
+        alert.send(
+            ('Boomerang sends are zero for the last {} hours for {}'.format(hours, client_ref),
+             '\n\nhttp://monitor.au.basketchaser.com'),
+            'Boomerang Send Warning for {}'.format(client_ref)
+        )
