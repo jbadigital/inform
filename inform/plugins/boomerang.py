@@ -56,6 +56,10 @@ class MonitorPlugin(InformBasePlugin):
             for key, value in data.items():
                 output[client_ref][key] = value
 
+                # log everything to graphite
+                if key != "timestamp":
+                    self.log_to_graphite("clients.{}.{}".format(client_ref, key), value)
+
         return output
 
     def alert(self, client_ref, hours):
