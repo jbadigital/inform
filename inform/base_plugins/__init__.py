@@ -115,8 +115,10 @@ class InformBasePlugin(Task):
 
 
     def log_to_graphite(self, metric, value=0):
+        sock = None
         try:
             sock = socket()
+            sock.settimeout(2);
             sock.connect((app.config['GRAPHITE_HOST'], app.config['GRAPHITE_PORT']))
             sock.sendall('{} {} {}\n'.format(metric, value, int(time.time())))
             self.log('Logged to Graphite {} {}'.format(metric, value))
@@ -126,7 +128,8 @@ class InformBasePlugin(Task):
         except IOError:
             self.log('Error logging to Graphite')
         finally:
-            sock.close()
+            if sock is not None:
+                sock.close()
 
     def log(self, msg):
         print '[{}] {}'.format(self.plugin_name, msg)
