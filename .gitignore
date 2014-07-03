@@ -18,3 +18,5 @@ prod_vars.sls
 
 inform.sqlitedb
 inform/flask.conf.py
+
+config/iamcreds.conf
