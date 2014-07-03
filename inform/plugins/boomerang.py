@@ -28,7 +28,7 @@ class MonitorPlugin(InformBasePlugin):
         client = salt.client.LocalClient()
         results = client.cmd(
             'G@ec2_region:{} and G@role:rabbit'.format(ec2_region),
-            'monitoring.client_status',
+            'monitoring.status',
             expr_form='compound',
             timeout=20
         )
