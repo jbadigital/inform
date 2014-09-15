@@ -42,12 +42,12 @@ class MonitorPlugin(InformBasePlugin):
             return {}
 
         for client_ref, data in results[results.keys()[0]].items():
-            if client_ref in ('www_optus_com_au', 'virginmobile_com_au'):
+            if client_ref in ('virginmobile_com_au'):
                 # raise an alert if 2 hour sends is zero
                 if data['sends_last_2hrs'] == 0:
                     self.alert(client_ref, 2)
 
-            elif client_ref in ('goodlifehealthclubs_com_au', 'melbourneit_com_au'):
+            elif client_ref in ('goodlifehealthclubs_com_au'):
                 # raise an alert if 4 hour sends is zero
                 if data['sends_last_4hrs'] == 0:
                     self.alert(client_ref, 4)
