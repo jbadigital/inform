@@ -15,7 +15,7 @@ except:
 
 
 class MonitorPlugin(InformBasePlugin):
-    run_every = datetime.timedelta(minutes=30)
+    run_every = datetime.timedelta(minutes=60)
     plugin_name = 'boomerang'
     sort_output = True
 
@@ -27,7 +27,7 @@ class MonitorPlugin(InformBasePlugin):
         # query boomerang stats via custom salt module
         client = salt.client.LocalClient()
         results = client.cmd(
-            'G@ec2_region:{} and G@role:rabbit'.format(ec2_region),
+            'G@ec2_region:{} and G@role:rabbit and G@env:prod'.format(ec2_region),
             'monitoring.status',
             expr_form='compound',
             timeout=20
@@ -41,20 +41,15 @@ class MonitorPlugin(InformBasePlugin):
                 )
             return {}
 
-        for client_ref, data in results[results.keys()[0]].items():
-            if client_ref in ('virginmobile_com_au'):
-                # raise an alert if 2 hour sends is zero
-                if data['sends_last_2hrs'] == 0:
-                    self.alert(client_ref, 2)
-
-            elif client_ref in ('goodlifehealthclubs_com_au'):
-                # raise an alert if 4 hour sends is zero
+        for client_ref, data in results[results.keys()[0]].iteritems():
+            # raise an alert if 4 hour sends is zero
+            if client_ref != 'global':
                 if data['sends_last_4hrs'] == 0:
                     self.alert(client_ref, 4)
 
             # store raw metrics
             output[client_ref] = {'timestamp': datetime.datetime.now().isoformat()}
-            for key, value in data.items():
+            for key, value in data.iteritems():
                 output[client_ref][key] = value
 
                 # log everything to graphite
